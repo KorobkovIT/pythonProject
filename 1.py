@@ -1,3 +1,10 @@
-numbers = {'a': 4, 'b': 5}
-result = numbers.items()
-print(result)
+
+a=3
+def fox():
+    global a
+    a=1
+    print(a)
+
+fox()
+
+print(a)
