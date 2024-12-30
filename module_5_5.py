@@ -1,80 +1,102 @@
 #Свой YouTube
 
 class User:
-    user = []
-    def __init__(self, nickname, password, age):
-        self.nickname = nickname                    #nickname(имя пользователя, строка)
-        self.password = password                    #password(в хэшированном виде, число)
-        self.age = age                              #age(возраст, число)
+    def __init__(self, nickname: str, password: str, age: int):
+        self.nickname = nickname
+        self.password = password
+        self.age = age
+
+    def __str__(self):
+        return self.nickname
+
 
 class Video:
-    video = []
-    def __init__(self, title, duration, time_now = 0, adult_mode = False):
-        self.title = title                          #title(заголовок, строка)
-        self.duration = duration                    #duration(продолжительность, секунды)
-        self.time_now = time_now                     #time_now(секунда остановки (изначально 0))
-        self.adult_mode = adult_mode                #adult_mode(ограничение по возрасту, bool (False по умолчанию))
-        self.video.append(title)
+    def __init__(self, title: str, duration: int, adult_mode: bool = False):
+        self.title = title
+        self.duration = duration
+        self.time_now = 0
+        self.adult_mode = adult_mode
+
 
 class UrTube:
-    def __init__(self):
-        self.users = User.user                         #users(список объектов User)
-        self.videos = Video.video                        #videos(список объектов Video)
-        self.current_user = None                        #current_user(текущий пользователь, User)
+    def __init__(self, users = [], videos = [], current_user = None):
+        self.users = users
+        self.videos = videos
+        self.current_user = current_user
 
-    def log_in(self, nickname, password ):
-        if nickname in User.nickname and password in User.password:
-            self.current_user = user
+    def register(self, nickname: str, password: str, age: int):
+        password = hash(password)
+        for user in self.users:
+            if user.nickname == nickname:
+                print(f"Пользователь {nickname} уже существует")
+                return
 
-    def register(self, nickname, password, age):
-        if nickname in User.user:
-            print(f"Пользователь {nickname} уже существует")
-        else:
-            User.user.append(nickname)
+        new_user = User(nickname, password, age)
+        self.users.append(new_user)
+        self.current_user = new_user
 
     def log_out(self):
-        current_user = None
-        return current_user
+        self.current_user = None
 
-    def add(self, *title):
-        if title not in Video.video:
-            Video.video.append(title)
+    def log_in(self, login: str, password: str):
+        for user in self.users:
+            if login == user.nickname and password == user.password:
+                self.current_user = user
 
-    def get_videos(self, title):
-        getVideos = []
-        title_lower = title.lower()
-        for elem in Video.video:
-            if isinstance(elem, str):
-                videos_lower = []
-                videos_lower.append(elem.lower())
-                str_videos_lower = str(videos_lower)
-                if title_lower in str_videos_lower:
-                    getVideos.append(elem)
-        return getVideos
+    def add(self, *args):
+        for movie in args:
+            if movie not in self.videos:
+                self.videos.append(movie)
 
-    # def watch_video(self):
+    def get_videos(self, text: str):
+        list_movie = []
+        for video in self.videos:
+            if text.upper() in video.title.upper():
+                list_movie.append(video.title)
+        return list_movie
 
-ur = UrTube()
-v1 = Video('Лучший язык программирования 2024 года', 200)
-v2 = Video('Для чего девушкам парень программист?', 10, adult_mode=True)
+    def watch_video(self, movie: str):
+        if not self.current_user:
+            print('Войдите в аккаунт, чтобы смотреть видео')
+            return
 
-# Добавление видео
-ur.add(v1, v2)
+        for x in self.videos:
+            if x.title == movie:
+                if x.adult_mode and self.current_user.age < 18:
+                    print('Вам нет 18 лет, пожалуйста, покиньте страницу')
+                    return
 
-# Проверка поиска
-print(ur.get_videos('лучший'))
-print(ur.get_videos('ПРОГ'))
+                for i in range(x.duration):
+                    print(i, end=' ')
+                    x.time_now += 1
+                x.time_now = 0
+                print('Конец видео')
 
-# # Проверка на вход пользователя и возрастное ограничение
-# ur.watch_video('Для чего девушкам парень программист?')
-ur.register('vasya_pupkin', 'lolkekcheburek', 13)
-# ur.watch_video('Для чего девушкам парень программист?')
-ur.register('urban_pythonist', 'iScX4vIJClb9YQavjAgF', 25)
-# ur.watch_video('Для чего девушкам парень программист?')
-#
-# Проверка входа в другой аккаунт
-ur.register('vasya_pupkin', 'F8098FM8fjm9jmi', 55)
-print(ur.current_user)
-#
-# # Попытка воспроизведения несуществующего видео
-# ur.watch_video('Лучший язык программирования 2024 года!')
+if __name__ == '__main__':
+
+    ur = UrTube()
+    v1 = Video('Лучший язык программирования 2024 года', 200)
+    v2 = Video('Для чего девушкам парень программист?', 10, adult_mode=True)
+
+    # Добавление видео
+    ur.add(v1, v2)
+
+    # Проверка поиска
+    print(ur.get_videos('лучший'))
+    print(ur.get_videos('ПРОГ'))
+
+    # Проверка на вход пользователя и возрастное ограничение
+    ur.watch_video('Для чего девушкам парень программист?')
+    ur.register('vasya_pupkin', 'lolkekcheburek', 13)
+    ur.watch_video('Для чего девушкам парень программист?')
+    ur.register('urban_pythonist', 'iScX4vIJClb9YQavjAgF', 25)
+    ur.watch_video('Для чего девушкам парень программист?')
+
+    # Проверка входа в другой аккаунт
+    ur.register('vasya_pupkin', 'F8098FM8fjm9jmi', 55)
+    print(ur.current_user)
+
+    # Попытка воспроизведения несуществующего видео
+    ur.watch_video('Лучший язык программирования 2024 года!')
+
+
