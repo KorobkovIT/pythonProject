@@ -1,42 +1,34 @@
-class Product:
-    def __init__(self, name, weight, category):
-        self.name = name
-        self.weight = weight
-        self.category = category
-    def __str__(self):
-        return(f'{self.name}, {self.weight}, {self.category}')
+def custom_write(file_name, strings):
+    # Создаем пустой словарь для хранения позиций строк
+    strings_positions = {}
 
-class Shop(Product):
-    def __init__(self, name, weight, category, __file_name='products.txt'):
-        super().__init__(name, weight, category)
-        self.__file_name = __file_name
-    def get_products(self):
-        file = open(self.__file_name, 'r')
-        st = file.read()
-        file.close()
-        print(f'{st}')
-    def add(self, *products):
-        for i in products:
-            s = (str(i))
-            file = open(self.__file_name, 'r')
-            f = file.read()
-            file.close()
-            if s in f:
-                print(f'Продукт {s} уже есть в магазине')
-            else:
-                file = open(self.__file_name, 'a')
-                file.write(f'\n{s}')
-                file.close()
+    # Открываем файл для записи
+    with open(file_name, 'w', encoding='utf-8') as f:
+        # Перебираем строки с их индексами
+        for index in range(len(strings)):
+            string = strings[index]  # Получаем строку по индексу
+            byte_position = f.tell()  # Узнаем текущую позицию в байтах
 
-s1 = Shop('',0 , '')
-p1 = Product('Potato', 50.5, 'Vegetables')
-p2 = Product('Spaghetti', 3.4, 'Groceries')
-p3 = Product('Potato', 5.5, 'Vegetables')
-#
-print(p2)  # __str__
+            # Записываем строку в файл
+            f.write(string + '\n')
 
-s1.add(p1, p2, p3)
+            # Сохраняем позицию и строку в словарь
+            strings_positions[(index + 1, byte_position)] = string
 
-print(s1.get_products())
+    return strings_positions  # Возвращаем словарь
 
-s1.get_products()
+
+# Пример использования функции
+info = [
+    'Text for tell.',
+    'Используйте кодировку utf-8.',
+    'Because there are 2 languages!',
+    'Спасибо!'
+]
+
+# Вызываем функцию и сохраняем результат
+result = custom_write('test.txt', info)
+
+# Печатаем результаты
+for elem in result.items():
+    print(elem)
